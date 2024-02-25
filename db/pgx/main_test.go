@@ -7,22 +7,23 @@ import (
 	"log"
 	"os"
 	"testing"
-)
-
-const (
-	dbSource = "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable"
+	"tutorial.sqlc.dev/app/util"
 )
 
 var testQueries *Queries
-var testDB *pgxpool.Pool
+var connPool *pgxpool.Pool
 
 func testMain(m *testing.M) {
-	var err error
-	testDB, err = pgxpool.New(context.Background(), dbSource)
+	config, err := util.LoadConfig("../..")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+
+	connPool, err = pgxpool.New(context.Background(), config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
-	testQueries = New(testDB)
+	testQueries = New(connPool)
 
 	os.Exit(m.Run())
 }

@@ -14,11 +14,18 @@ import (
 
 func createRandomAccount(t *testing.T) Account {
 	var err error
-	testDB, err = pgxpool.New(context.Background(), dbSource)
+
+	config, err := util.LoadConfig("../..")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+
+	connPool, err = pgxpool.New(context.Background(), config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
-	testQueries = New(testDB)
+
+	testQueries = New(connPool)
 	arg := CreateAccountParams{
 		Owner:    util.RandomOwner(),
 		Balance:  util.RandomMoney(),

@@ -5,11 +5,18 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
+	"log"
 	"testing"
+	"tutorial.sqlc.dev/app/util"
 )
 
 func TestTransferTx(t *testing.T) {
-	testDB, err := pgxpool.New(context.Background(), dbSource)
+	config, err := util.LoadConfig("../..")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+
+	testDB, err := pgxpool.New(context.Background(), config.DBSource)
 	require.NoError(t, err)
 	store := NewStore(testDB)
 	account1 := createRandomAccount(t)
@@ -119,7 +126,11 @@ func TestTransferTx(t *testing.T) {
 }
 
 func TestTransferTxDeadlock(t *testing.T) {
-	testDB, err := pgxpool.New(context.Background(), dbSource)
+	config, err := util.LoadConfig("../..")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+	testDB, err := pgxpool.New(context.Background(), config.DBSource)
 	require.NoError(t, err)
 	store := NewStore(testDB)
 	account1 := createRandomAccount(t)
